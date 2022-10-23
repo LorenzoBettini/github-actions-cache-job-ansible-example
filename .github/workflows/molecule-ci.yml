@@ -34,6 +34,12 @@ jobs:
     needs: cache-dependencies
     name: Molecule
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        playbookdistro:
+          - fedora:36
+          - quay.io/centos/centos:stream8
 
     steps:
       - name: Check out the codebase.
@@ -49,9 +55,11 @@ jobs:
         with:
           path: /opt/hostedtoolcache/Python/*
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          # perfect cache key match
 
       - name: Run Molecule tests.
         run: molecule test
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: ${{ matrix.playbookdistro }}
